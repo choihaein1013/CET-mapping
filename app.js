@@ -23,8 +23,9 @@
     return data.roles.filter(r => (state.sector === "all" || r.sector === state.sector) && (state.domain === "all" || r.domain === state.domain) && (!q || norm(`${r.title} ${r.domain} ${r.sector}`).includes(q)));
   }
   function selectedRoleCourses() {
-    const q = norm(state.search);
-    return (mappingsByRole.get(state.roleId) || []).map(m => ({ ...courseById.get(m.courseId), ...m })).filter(c => c && (state.classification === "all" || c.classification === state.classification) && fundingMatch(c) && (!q || norm(`${c.title} ${c.organisation} ${c.funding}`).includes(q))).sort(sortCourses);
+    // Role-search text is only for locating a job role. It must never alter the
+    // canonical mapped-course list for the selected role.
+    return (mappingsByRole.get(state.roleId) || []).map(m => ({ ...courseById.get(m.courseId), ...m })).filter(c => c && (state.classification === "all" || c.classification === state.classification) && fundingMatch(c)).sort(sortCourses);
   }
   function filteredCatalogue() {
     const q = norm(state.search);
@@ -89,7 +90,7 @@
     Object.entries(viewElements).forEach(([view, element]) => { element.hidden = state.view !== view; });
     $("courseFilters").hidden = !["roles", "catalogue"].includes(state.view);
     $("sectorField").hidden = state.view === "catalogue"; $("domainField").hidden = state.view === "catalogue";
-    $("searchLabel").textContent = state.view === "roles" ? "Search roles or courses" : "Search all courses";
+    $("searchLabel").textContent = state.view === "roles" ? "Search job roles" : "Search all courses";
     document.querySelectorAll(".view-tab").forEach(b => b.classList.toggle("is-active", b.dataset.view === state.view));
     document.querySelectorAll(".chip").forEach(b => b.classList.toggle("is-active", b.dataset.class === state.classification));
     renderRoles(); renderCatalogue(); renderProgression();
